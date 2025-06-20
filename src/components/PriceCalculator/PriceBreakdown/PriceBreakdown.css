@@ -1,50 +1,86 @@
+@import '../../../styles/variables.css';
+
 .price-breakdown {
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background-color: white;
+  box-shadow: var(--shadow-md);
 }
 
 .price-breakdown h2 {
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
+  margin-bottom: var(--space-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.price-breakdown h2 svg {
+  color: var(--primary-500);
+}
+
+.breakdown-items {
+  margin-bottom: var(--space-lg);
 }
 
 .breakdown-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm) 0;
+  font-size: 0.95rem;
+  transition: background-color var(--transition-fast);
+}
+
+.breakdown-item:hover {
+  background-color: var(--neutral-50);
 }
 
 .item-label {
-  color: #555;
+  color: var(--neutral-700);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .item-value {
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--neutral-800);
 }
 
 .breakdown-divider {
   height: 1px;
-  background-color: #eee;
-  margin: 10px 0;
+  background-color: var(--neutral-200);
+  margin: var(--space-md) 0;
 }
 
 .discount .item-value {
-  color: #e74c3c;
+  color: var(--error);
+}
+
+.total-section {
+  background-color: var(--neutral-100);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-lg);
 }
 
 .total {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 5px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.total .item-value {
+  color: var(--accent-700);
 }
 
 .per-item-price {
   text-align: right;
-  font-size: 12px;
-  color: #666;
-  margin-top: 5px;
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+  margin-top: var(--space-xs);
 }

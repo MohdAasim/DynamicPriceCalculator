@@ -1,15 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ConfigPanel } from './ConfigPanel/ConfigPanel';
 import { PriceBreakdown } from './PriceBreakdown/PriceBreakdown';
 import { PriceHistoryChart } from './PriceHistory/PriceHistoryChart';
 import { ComparisonPanel } from './Comparison/ComparisonPanel';
 import { usePriceCalculator } from '../../hooks/usePriceCalculator';
 import type { Product, PriceHistory, ProductConfiguration } from '../../types';
+import {
+  saveConfigurationToStorage,
+  getSavedConfigurations,
+  deleteConfigurationFromStorage,
+  type SavedConfigurationEntry,
+} from '../../utils/storageUtils';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import '../../styles/toast.css';
 import './PriceCalculator.css';
+import { SaveConfigDialog } from './SavedConfigurations/SaveConfigDialog';
+import { SavedConfigurationsPanel } from './SavedConfigurations/SavedConfigurationsPanel';
 
 interface PriceCalculatorProps {
   product: Product;
   priceHistory: PriceHistory[];
+  initialConfig?: ProductConfiguration | null;
 }
 
 type SavedConfiguration = {
@@ -23,29 +35,122 @@ type SavedConfiguration = {
   };
 };
 
-export const PriceCalculator: React.FC<PriceCalculatorProps> = ({ product, priceHistory }) => {
+export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
+  product,
+  priceHistory,
+  initialConfig,
+}) => {
   const [savedConfigs, setSavedConfigs] = useState<SavedConfiguration[]>([]);
+  const [storedConfigurations, setStoredConfigurations] = useState<SavedConfigurationEntry[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  const { config, updateSize, updateColor, toggleAddOn, updateQuantity, priceBreakdown } =
-    usePriceCalculator(product);
+  const {
+    config,
+    updateSize,
+    updateColor,
+    toggleAddOn,
+    updateQuantity,
+    updateFullConfig,
+    priceBreakdown,
+  } = usePriceCalculator(product, initialConfig);
+
+  // Load saved configurations from localStorage on component mount
+  useEffect(() => {
+    const loadedConfigurations = getSavedConfigurations();
+    setStoredConfigurations(loadedConfigurations);
+  }, []);
+
+  const generateShareableUrl = () => {
+    try {
+      // Create a complete copy of the configuration
+      const configToSave = {
+        productId: config.productId,
+        sizeId: config.sizeId,
+        colorId: config.colorId,
+        addOnIds: [...config.addOnIds],
+        quantity: config.quantity,
+      };
+
+      // Stringify and encode the configuration
+      const configData = JSON.stringify(configToSave);
+      const encoded = btoa(encodeURIComponent(configData));
+
+      // Generate shareable URL
+      return `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+    } catch (error) {
+      console.error('Error generating URL:', error);
+      return null;
+    }
+  };
 
   const saveConfiguration = () => {
-    // In a real app, this would generate a unique ID and save to a database
-    const configData = JSON.stringify(config);
-    const encoded = btoa(configData); // Simple encoding
+    // Show the save dialog to get a name
+    setShowSaveDialog(true);
+  };
 
-    // Generate shareable URL
-    const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+  const handleSaveWithName = (name: string) => {
+    try {
+      // Save to localStorage
+      const configToSave = {
+        productId: config.productId,
+        sizeId: config.sizeId,
+        colorId: config.colorId,
+        addOnIds: [...config.addOnIds],
+        quantity: config.quantity,
+      };
 
-    // Copy to clipboard
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        alert('Configuration link copied to clipboard!');
-      })
-      .catch(() => {
-        alert('Failed to copy link. Your configuration is saved though!');
-      });
+      const savedEntry = saveConfigurationToStorage(configToSave, name);
+
+      // Update the stored configurations state
+      setStoredConfigurations((prev) => [...prev, savedEntry]);
+
+      // Generate a shareable URL
+      const url = generateShareableUrl();
+
+      // Copy to clipboard if possible
+      if (url) {
+        navigator.clipboard
+          .writeText(url)
+          .then(() => {
+            // Replace alert with toast
+            toast.success(`Configuration "${name}" saved! Shareable link copied to clipboard.`);
+          })
+          .catch(() => {
+            // Replace alert with toast
+            toast.info(`Configuration "${name}" saved! (Failed to copy link to clipboard)`);
+          });
+      } else {
+        // Replace alert with toast
+        toast.success(`Configuration "${name}" saved!`);
+      }
+
+      // Close the dialog
+      setShowSaveDialog(false);
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+      // Replace alert with toast
+      toast.error('Failed to save configuration. Please try again.');
+    }
+  };
+
+  const loadSavedConfiguration = (savedConfig: ProductConfiguration) => {
+    updateFullConfig(savedConfig);
+    // Show toast when configuration is loaded
+    toast.info('Configuration loaded successfully!');
+  };
+
+  const deleteSavedConfiguration = (configId: string) => {
+    if (window.confirm('Are you sure you want to delete this configuration?')) {
+      const success = deleteConfigurationFromStorage(configId);
+      if (success) {
+        setStoredConfigurations((prev) => prev.filter((config) => config.id !== configId));
+        // Show toast when configuration is deleted
+        toast.info('Configuration deleted successfully');
+      } else {
+        // Replace alert with toast
+        toast.error('Failed to delete configuration. Please try again.');
+      }
+    }
   };
 
   const addToComparison = () => {
@@ -69,26 +174,48 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({ product, price
     );
 
     if (configExists) {
-      alert('This configuration is already in your comparison.');
+      // Replace alert with toast
+      toast.warning('This configuration is already in your comparison.');
       return;
     }
 
     // Add to saved configurations
     setSavedConfigs([...savedConfigs, { config: { ...config }, priceInfo }]);
+
+    // Show toast notification for successful addition
+    toast.success('Item added to comparison!');
   };
 
   const removeFromComparison = (index: number) => {
     const newConfigs = [...savedConfigs];
     newConfigs.splice(index, 1);
     setSavedConfigs(newConfigs);
+    // Show toast when item is removed
+    toast.info('Item removed from comparison');
   };
 
   const clearAllComparisons = () => {
     setSavedConfigs([]);
+    // Show toast when all comparisons are cleared
+    toast.info('All comparisons cleared');
   };
 
   return (
     <div className='price-calculator'>
+      {/* Add the Toast Container component */}
+      <ToastContainer
+        position='top-right'
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='light'
+      />
+
       <div className='calculator-header'>
         <h1>💰 {product.name} Pricing Calculator</h1>
         <div className='header-buttons'>
@@ -142,6 +269,14 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({ product, price
         </div>
       </div>
 
+      {/* Saved Configurations Panel */}
+      <SavedConfigurationsPanel
+        savedConfigurations={storedConfigurations}
+        onLoadConfiguration={loadSavedConfiguration}
+        onDeleteConfiguration={deleteSavedConfiguration}
+        product={product}
+      />
+
       <div className='chart-section'>
         <PriceHistoryChart priceHistory={priceHistory} />
       </div>
@@ -153,6 +288,15 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({ product, price
         onRemoveConfig={removeFromComparison}
         onClearAll={clearAllComparisons}
       />
+
+      {/* Save Configuration Dialog */}
+      {showSaveDialog && (
+        <SaveConfigDialog
+          onSave={handleSaveWithName}
+          onCancel={() => setShowSaveDialog(false)}
+          existingNames={storedConfigurations.map((config) => config.name)}
+        />
+      )}
     </div>
   );
 };
