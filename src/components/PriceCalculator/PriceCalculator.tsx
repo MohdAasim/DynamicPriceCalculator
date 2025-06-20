@@ -11,6 +11,9 @@ import {
   deleteConfigurationFromStorage,
   type SavedConfigurationEntry,
 } from '../../utils/storageUtils';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import '../../styles/toast.css';
 import './PriceCalculator.css';
 import { SaveConfigDialog } from './SavedConfigurations/SaveConfigDialog';
 import { SavedConfigurationsPanel } from './SavedConfigurations/SavedConfigurationsPanel';
@@ -109,25 +112,31 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
         navigator.clipboard
           .writeText(url)
           .then(() => {
-            alert(`Configuration "${name}" saved! Shareable link copied to clipboard.`);
+            // Replace alert with toast
+            toast.success(`Configuration "${name}" saved! Shareable link copied to clipboard.`);
           })
           .catch(() => {
-            alert(`Configuration "${name}" saved! (Failed to copy link to clipboard)`);
+            // Replace alert with toast
+            toast.info(`Configuration "${name}" saved! (Failed to copy link to clipboard)`);
           });
       } else {
-        alert(`Configuration "${name}" saved!`);
+        // Replace alert with toast
+        toast.success(`Configuration "${name}" saved!`);
       }
 
       // Close the dialog
       setShowSaveDialog(false);
     } catch (error) {
       console.error('Error saving configuration:', error);
-      alert('Failed to save configuration. Please try again.');
+      // Replace alert with toast
+      toast.error('Failed to save configuration. Please try again.');
     }
   };
 
   const loadSavedConfiguration = (savedConfig: ProductConfiguration) => {
     updateFullConfig(savedConfig);
+    // Show toast when configuration is loaded
+    toast.info('Configuration loaded successfully!');
   };
 
   const deleteSavedConfiguration = (configId: string) => {
@@ -135,8 +144,11 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
       const success = deleteConfigurationFromStorage(configId);
       if (success) {
         setStoredConfigurations((prev) => prev.filter((config) => config.id !== configId));
+        // Show toast when configuration is deleted
+        toast.info('Configuration deleted successfully');
       } else {
-        alert('Failed to delete configuration. Please try again.');
+        // Replace alert with toast
+        toast.error('Failed to delete configuration. Please try again.');
       }
     }
   };
@@ -162,26 +174,48 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
     );
 
     if (configExists) {
-      alert('This configuration is already in your comparison.');
+      // Replace alert with toast
+      toast.warning('This configuration is already in your comparison.');
       return;
     }
 
     // Add to saved configurations
     setSavedConfigs([...savedConfigs, { config: { ...config }, priceInfo }]);
+
+    // Show toast notification for successful addition
+    toast.success('Item added to comparison!');
   };
 
   const removeFromComparison = (index: number) => {
     const newConfigs = [...savedConfigs];
     newConfigs.splice(index, 1);
     setSavedConfigs(newConfigs);
+    // Show toast when item is removed
+    toast.info('Item removed from comparison');
   };
 
   const clearAllComparisons = () => {
     setSavedConfigs([]);
+    // Show toast when all comparisons are cleared
+    toast.info('All comparisons cleared');
   };
 
   return (
     <div className='price-calculator'>
+      {/* Add the Toast Container component */}
+      <ToastContainer
+        position='top-right'
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme='light'
+      />
+
       <div className='calculator-header'>
         <h1>💰 {product.name} Pricing Calculator</h1>
         <div className='header-buttons'>

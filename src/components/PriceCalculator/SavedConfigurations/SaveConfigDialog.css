@@ -23,81 +23,90 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: var(--space-md);
 }
 
 .save-config-dialog {
   background-color: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 768px) {
+  .save-config-dialog {
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
 }
 
 .save-config-dialog h3 {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
+  margin-bottom: var(--space-md);
+  color: var(--neutral-900);
+  font-size: 1.1rem;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: var(--space-md);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: var(--space-xs);
   font-weight: 500;
-  color: #555;
+  color: var(--neutral-700);
+  font-size: 0.9rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+}
+
+.input-error {
+  border-color: var(--error) !important;
+  background-color: #fdecea;
+}
+
+.error-message {
+  color: var(--error);
+  font-size: 0.75rem;
+  margin-top: var(--space-xs);
+  font-weight: 500;
 }
 
 .dialog-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .cancel-button {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--neutral-200);
+  color: var(--neutral-800);
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
   cursor: pointer;
-}
-
-.cancel-button:hover {
-  background-color: #d0d0d0;
+  font-size: 0.85rem;
 }
 
 .save-button {
-  background-color: #4CAF50;
+  background-color: var(--accent-600);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .save-button:hover {
-  background-color: #45a049;
+  background-color: var(--accent-700);
 }
-.input-error {
-    border-color: #e74c3c !important;
-    background-color: #fdecea;
-  }
-  
-  .error-message {
-    color: #e74c3c;
-    font-size: 12px;
-    margin-top: 5px;
-    font-weight: 500;
-  }
