@@ -1,0 +1,19 @@
+.price-history-chart {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.price-history-chart h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #333;
+}
+
+.price-history-chart canvas {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+}

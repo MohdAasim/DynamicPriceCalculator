@@ -1,0 +1,50 @@
+.price-breakdown {
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.price-breakdown h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #333;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.item-label {
+  color: #555;
+}
+
+.item-value {
+  font-weight: 500;
+}
+
+.breakdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 10px 0;
+}
+
+.discount .item-value {
+  color: #e74c3c;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.per-item-price {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
