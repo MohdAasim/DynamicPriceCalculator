@@ -1,14 +1,33 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Product, ProductConfiguration } from '../types';
 
-export const usePriceCalculator = (product: Product) => {
-  const [config, setConfig] = useState<ProductConfiguration>({
-    productId: product.id,
-    sizeId: product.sizes[0].id,
-    colorId: product.colors[0].id,
-    addOnIds: [],
-    quantity: 1,
+export const usePriceCalculator = (
+  product: Product,
+  initialConfig?: ProductConfiguration | null,
+) => {
+  const [config, setConfig] = useState<ProductConfiguration>(() => {
+    return {
+      productId: product.id,
+      sizeId: product.sizes[0].id,
+      colorId: product.colors[0].id,
+      addOnIds: [],
+      quantity: 1,
+    };
   });
+
+  // Use useEffect to update config when initialConfig changes
+  useEffect(() => {
+    // If initialConfig exists and has the same productId, use it
+    if (initialConfig && initialConfig.productId === product.id) {
+      setConfig({
+        productId: initialConfig.productId,
+        sizeId: initialConfig.sizeId,
+        colorId: initialConfig.colorId,
+        addOnIds: [...initialConfig.addOnIds],
+        quantity: initialConfig.quantity,
+      });
+    }
+  }, [initialConfig, product.id]);
 
   const updateSize = (sizeId: string) => {
     setConfig({ ...config, sizeId });

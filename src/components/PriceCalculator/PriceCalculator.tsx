@@ -10,6 +10,7 @@ import './PriceCalculator.css';
 interface PriceCalculatorProps {
   product: Product;
   priceHistory: PriceHistory[];
+  initialConfig?: ProductConfiguration | null;
 }
 
 type SavedConfiguration = {
@@ -23,29 +24,48 @@ type SavedConfiguration = {
   };
 };
 
-export const PriceCalculator: React.FC<PriceCalculatorProps> = ({ product, priceHistory }) => {
+export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
+  product,
+  priceHistory,
+  initialConfig,
+}) => {
   const [savedConfigs, setSavedConfigs] = useState<SavedConfiguration[]>([]);
 
   const { config, updateSize, updateColor, toggleAddOn, updateQuantity, priceBreakdown } =
-    usePriceCalculator(product);
+    usePriceCalculator(product, initialConfig);
 
+  // Update the saveConfiguration function
   const saveConfiguration = () => {
-    // In a real app, this would generate a unique ID and save to a database
-    const configData = JSON.stringify(config);
-    const encoded = btoa(configData); // Simple encoding
+    try {
+      // Create a complete copy of the configuration
+      const configToSave = {
+        productId: config.productId,
+        sizeId: config.sizeId,
+        colorId: config.colorId,
+        addOnIds: [...config.addOnIds],
+        quantity: config.quantity,
+      };
 
-    // Generate shareable URL
-    const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+      // Stringify and encode the configuration
+      const configData = JSON.stringify(configToSave);
+      const encoded = btoa(encodeURIComponent(configData));
 
-    // Copy to clipboard
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        alert('Configuration link copied to clipboard!');
-      })
-      .catch(() => {
-        alert('Failed to copy link. Your configuration is saved though!');
-      });
+      // Generate shareable URL
+      const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+
+      // Copy to clipboard
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          alert('Configuration link copied to clipboard!');
+        })
+        .catch(() => {
+          alert('Failed to copy link. Your configuration is saved though!');
+        });
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+      alert('Failed to save configuration. Please try again.');
+    }
   };
 
   const addToComparison = () => {
