@@ -1,98 +1,262 @@
+@import '../../../styles/variables.css';
+
 .config-panel {
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background-color: white;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
 }
 
 .config-panel h2 {
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
+  margin-bottom: var(--space-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.config-panel h2 svg {
+  color: var(--primary-500);
 }
 
 .config-section {
-  margin-bottom: 15px;
+  margin-bottom: var(--space-lg);
 }
 
 .section-title {
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #555;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--neutral-700);
+  font-size: 0.95rem;
 }
 
+/* Size and Color options */
 .size-options, .color-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
 .size-option, .color-option {
-  display: flex;
-  align-items: center;
+  position: relative;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
 }
 
 .size-option input, .color-option input {
-  margin-right: 5px;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
+.size-option span, .color-option span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--neutral-100);
+  border: 2px solid var(--neutral-200);
+  transition: all var(--transition-fast);
+  font-weight: 500;
+  min-width: 50px;
+}
+
+.size-option input:checked + span, 
+.color-option input:checked + span {
+  background-color: var(--primary-100);
+  border-color: var(--primary-500);
+  color: var(--primary-800);
+}
+
+.size-option:hover span, 
+.color-option:hover span {
+  background-color: var(--neutral-200);
+}
+
+/* Add-ons */
 .addon-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 .addon-option {
   display: flex;
   align-items: center;
   cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
 }
 
-.addon-option input {
-  margin-right: 8px;
+.addon-option:hover {
+  background-color: var(--neutral-100);
 }
 
+.addon-checkbox {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin-right: var(--space-md);
+}
+
+.addon-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: var(--neutral-200);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.addon-checkbox input:checked ~ .checkmark {
+  background-color: var(--primary-600);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.addon-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.addon-checkbox .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.addon-label {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: 500;
+}
+
+.addon-price {
+  color: var(--primary-600);
+  font-weight: 600;
+}
+
+/* Quantity */
 .quantity-control {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-md);
 }
 
-.quantity-control input {
-  width: 80px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-right: 10px;
+.quantity-input {
+  position: relative;
+  width: 120px;
+}
+
+.quantity-input input {
+  width: 100%;
+  padding: var(--space-md);
+  padding-right: 40px;
+  border: 2px solid var(--neutral-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.quantity-input input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-100);
 }
 
 .quantity-icon {
-  font-size: 18px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--neutral-600);
+  pointer-events: none;
 }
 
+.quantity-buttons {
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--space-sm);
+}
+
+.quantity-btn {
+  background-color: var(--neutral-200);
+  border: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: var(--radius-sm);
+}
+
+.quantity-btn:hover {
+  background-color: var(--neutral-300);
+}
+
+.quantity-btn:first-child {
+  margin-bottom: 2px;
+}
+
+/* Discount indicator */
 .discount-indicator {
-  margin-top: 5px;
+  margin-top: var(--space-md);
 }
 
 .discount-bar {
-  height: 10px;
-  background-color: #eee;
-  border-radius: 5px;
+  height: 8px;
+  background-color: var(--neutral-200);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 5px;
+  margin-bottom: var(--space-sm);
 }
 
 .discount-fill {
   height: 100%;
-  background-color: #4CAF50;
-  transition: width 0.3s ease;
+  background-color: var(--accent-500);
+  transition: width var(--transition-normal);
 }
 
 .discount-text {
-  font-size: 12px;
-  color: #666;
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+  display: flex;
+  justify-content: space-between;
+}
+
+.discount-percentage {
+  font-weight: 600;
+  color: var(--accent-700);
 }

@@ -48,6 +48,18 @@ export const usePriceCalculator = (
     setConfig({ ...config, quantity: Math.max(1, quantity) });
   };
 
+  // Add the updateFullConfig function
+  const updateFullConfig = (newConfig: ProductConfiguration) => {
+    setConfig({
+      productId: newConfig.productId,
+      sizeId: newConfig.sizeId,
+      colorId: newConfig.colorId,
+      addOnIds: [...newConfig.addOnIds],
+      quantity: newConfig.quantity,
+    });
+  };
+
+  // Calculate price breakdown based on current configuration
   const priceBreakdown = useMemo(() => {
     // Get size price
     const selectedSize = product.sizes.find((size) => size.id === config.sizeId);
@@ -94,12 +106,14 @@ export const usePriceCalculator = (
     };
   }, [config, product]);
 
+  // Return the functions and state
   return {
     config,
     updateSize,
     updateColor,
     toggleAddOn,
     updateQuantity,
+    updateFullConfig, // Add this function to the return value
     priceBreakdown,
   };
 };

@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ConfigPanel } from './ConfigPanel/ConfigPanel';
 import { PriceBreakdown } from './PriceBreakdown/PriceBreakdown';
 import { PriceHistoryChart } from './PriceHistory/PriceHistoryChart';
 import { ComparisonPanel } from './Comparison/ComparisonPanel';
 import { usePriceCalculator } from '../../hooks/usePriceCalculator';
 import type { Product, PriceHistory, ProductConfiguration } from '../../types';
+import {
+  saveConfigurationToStorage,
+  getSavedConfigurations,
+  deleteConfigurationFromStorage,
+  type SavedConfigurationEntry,
+} from '../../utils/storageUtils';
 import './PriceCalculator.css';
+import { SaveConfigDialog } from './SavedConfigurations/SaveConfigDialog';
+import { SavedConfigurationsPanel } from './SavedConfigurations/SavedConfigurationsPanel';
 
 interface PriceCalculatorProps {
   product: Product;
@@ -30,12 +38,26 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
   initialConfig,
 }) => {
   const [savedConfigs, setSavedConfigs] = useState<SavedConfiguration[]>([]);
+  const [storedConfigurations, setStoredConfigurations] = useState<SavedConfigurationEntry[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  const { config, updateSize, updateColor, toggleAddOn, updateQuantity, priceBreakdown } =
-    usePriceCalculator(product, initialConfig);
+  const {
+    config,
+    updateSize,
+    updateColor,
+    toggleAddOn,
+    updateQuantity,
+    updateFullConfig,
+    priceBreakdown,
+  } = usePriceCalculator(product, initialConfig);
 
-  // Update the saveConfiguration function
-  const saveConfiguration = () => {
+  // Load saved configurations from localStorage on component mount
+  useEffect(() => {
+    const loadedConfigurations = getSavedConfigurations();
+    setStoredConfigurations(loadedConfigurations);
+  }, []);
+
+  const generateShareableUrl = () => {
     try {
       // Create a complete copy of the configuration
       const configToSave = {
@@ -51,20 +73,71 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
       const encoded = btoa(encodeURIComponent(configData));
 
       // Generate shareable URL
-      const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+      return `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+    } catch (error) {
+      console.error('Error generating URL:', error);
+      return null;
+    }
+  };
 
-      // Copy to clipboard
-      navigator.clipboard
-        .writeText(url)
-        .then(() => {
-          alert('Configuration link copied to clipboard!');
-        })
-        .catch(() => {
-          alert('Failed to copy link. Your configuration is saved though!');
-        });
+  const saveConfiguration = () => {
+    // Show the save dialog to get a name
+    setShowSaveDialog(true);
+  };
+
+  const handleSaveWithName = (name: string) => {
+    try {
+      // Save to localStorage
+      const configToSave = {
+        productId: config.productId,
+        sizeId: config.sizeId,
+        colorId: config.colorId,
+        addOnIds: [...config.addOnIds],
+        quantity: config.quantity,
+      };
+
+      const savedEntry = saveConfigurationToStorage(configToSave, name);
+
+      // Update the stored configurations state
+      setStoredConfigurations((prev) => [...prev, savedEntry]);
+
+      // Generate a shareable URL
+      const url = generateShareableUrl();
+
+      // Copy to clipboard if possible
+      if (url) {
+        navigator.clipboard
+          .writeText(url)
+          .then(() => {
+            alert(`Configuration "${name}" saved! Shareable link copied to clipboard.`);
+          })
+          .catch(() => {
+            alert(`Configuration "${name}" saved! (Failed to copy link to clipboard)`);
+          });
+      } else {
+        alert(`Configuration "${name}" saved!`);
+      }
+
+      // Close the dialog
+      setShowSaveDialog(false);
     } catch (error) {
       console.error('Error saving configuration:', error);
       alert('Failed to save configuration. Please try again.');
+    }
+  };
+
+  const loadSavedConfiguration = (savedConfig: ProductConfiguration) => {
+    updateFullConfig(savedConfig);
+  };
+
+  const deleteSavedConfiguration = (configId: string) => {
+    if (window.confirm('Are you sure you want to delete this configuration?')) {
+      const success = deleteConfigurationFromStorage(configId);
+      if (success) {
+        setStoredConfigurations((prev) => prev.filter((config) => config.id !== configId));
+      } else {
+        alert('Failed to delete configuration. Please try again.');
+      }
     }
   };
 
@@ -162,6 +235,14 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
         </div>
       </div>
 
+      {/* Saved Configurations Panel */}
+      <SavedConfigurationsPanel
+        savedConfigurations={storedConfigurations}
+        onLoadConfiguration={loadSavedConfiguration}
+        onDeleteConfiguration={deleteSavedConfiguration}
+        product={product}
+      />
+
       <div className='chart-section'>
         <PriceHistoryChart priceHistory={priceHistory} />
       </div>
@@ -173,6 +254,15 @@ export const PriceCalculator: React.FC<PriceCalculatorProps> = ({
         onRemoveConfig={removeFromComparison}
         onClearAll={clearAllComparisons}
       />
+
+      {/* Save Configuration Dialog */}
+      {showSaveDialog && (
+        <SaveConfigDialog
+          onSave={handleSaveWithName}
+          onCancel={() => setShowSaveDialog(false)}
+          existingNames={storedConfigurations.map((config) => config.name)}
+        />
+      )}
     </div>
   );
 };

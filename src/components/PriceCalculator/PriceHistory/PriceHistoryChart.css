@@ -1,19 +1,80 @@
+@import '../../../styles/variables.css';
+
 .price-history-chart {
   background-color: white;
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .price-history-chart h2 {
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333;
+  margin-bottom: var(--space-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.price-history-chart h2 svg {
+  color: var(--primary-500);
 }
 
 .price-history-chart canvas {
   width: 100%;
   height: auto;
   max-height: 300px;
+  margin-top: var(--space-md);
+}
+
+.chart-container {
+  position: relative;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.85rem;
+  color: var(--neutral-700);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-color.price {
+  background-color: var(--primary-500);
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--neutral-600);
+  text-align: center;
+}
+
+.no-data-message svg {
+  margin-bottom: var(--space-md);
+  color: var(--neutral-400);
+}
+
+.no-data-message p {
+  margin: 0;
+  font-size: 0.9rem;
 }
